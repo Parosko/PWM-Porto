@@ -1,6 +1,6 @@
 // frontend/src/components/Karya.jsx
 import { useState, useEffect } from 'react';
-import { GetKarya, AddKarya, UpdateKarya, DeleteKarya, delay } from '../api/backendApi';
+import { GetKarya, AddKarya, UpdateKarya, DeleteKarya, BASE_URL, delay } from '../api/backendApi';
 import Modal from './Modal';
 import Button from './Button';
 import Alert from './Alert';
@@ -11,7 +11,7 @@ const Karya = ({ token }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentId, setCurrentId] = useState(null);
-  const [form, setForm] = useState({ nama_karya: '', deskripsi: '', url: '' });
+  const [form, setForm] = useState({ nama_karya: '', deskripsi: '', url: '', gambar: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
@@ -26,7 +26,7 @@ const Karya = ({ token }) => {
         setList(res.data.karya_terbaik || []);
       }
     } catch (err) {
-      setAlert({ show: true, message: 'Gagal mengambil data karya', type: 'error' });
+      setAlert({ show: true, message: err.response?.data?.message || err.response?.data?.pesan || 'Gagal mengambil data karya', type: 'error' });
     } finally {
       setIsLoadingData(false);
     }
@@ -40,7 +40,7 @@ const Karya = ({ token }) => {
   const handleOpenAdd = () => {
     setIsEdit(false);
     setCurrentId(null);
-    setForm({ nama_karya: '', deskripsi: '', url: '' });
+    setForm({ nama_karya: '', deskripsi: '', url: '', gambar: null });
     setIsOpen(true);
   };
 
@@ -48,7 +48,7 @@ const Karya = ({ token }) => {
   const handleOpenEdit = (item) => {
     setIsEdit(true);
     setCurrentId(item.id);
-    setForm({ nama_karya: item.nama_karya, deskripsi: item.deskripsi, url: item.url });
+    setForm({ nama_karya: item.nama_karya, deskripsi: item.deskripsi, url: item.url, gambar: null });
     setIsOpen(true);
   };
 
@@ -57,9 +57,14 @@ const Karya = ({ token }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const payload = { ...form, token };
+      const payload = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        if (key !== 'gambar') payload.append(key, value);
+      });
+      payload.append('token', token);
+      if (form.gambar) payload.append('gambar', form.gambar);
       if (isEdit) {
-        payload.id = currentId;
+        payload.append('id', currentId);
         await UpdateKarya(payload);
         setAlert({ show: true, message: 'Karya berhasil diperbarui!', type: 'success' });
       } else {
@@ -69,7 +74,7 @@ const Karya = ({ token }) => {
       setIsOpen(false);
       fetchData();
     } catch (err) {
-      setAlert({ show: true, message: 'Gagal menyimpan karya', type: 'error' });
+      setAlert({ show: true, message: err.response?.data?.message || err.response?.data?.pesan || 'Gagal menyimpan karya', type: 'error' });
     } finally {
       setIsSubmitting(false);
     }
@@ -83,7 +88,7 @@ const Karya = ({ token }) => {
       setAlert({ show: true, message: 'Karya berhasil dihapus!', type: 'success' });
       fetchData();
     } catch (err) {
-      setAlert({ show: true, message: 'Gagal menghapus karya', type: 'error' });
+      setAlert({ show: true, message: err.response?.data?.message || err.response?.data?.pesan || 'Gagal menghapus karya', type: 'error' });
     }
   };
 
@@ -104,6 +109,7 @@ const Karya = ({ token }) => {
               <th>Nama Karya</th>
               <th>Deskripsi</th>
               <th>Tautan</th>
+              <th>Gambar</th>
               <th>Aksi</th>
             </tr>
           </thead>
@@ -117,6 +123,15 @@ const Karya = ({ token }) => {
                   <a href={item.url} target="_blank" rel="noreferrer">
                     Kunjungi
                   </a>
+                </td>
+                <td>
+                  {item.gambar && (
+                    <img
+                      src={`${BASE_URL}/uploads/${item.gambar}`}
+                      alt={`Gambar ${item.nama_karya}`}
+                      style={{ width: '64px', height: '48px', objectFit: 'cover', borderRadius: '4px' }}
+                    />
+                  )}
                 </td>
                 <td>
                   <button className="button" onClick={() => handleOpenEdit(item)}>
@@ -166,6 +181,20 @@ const Karya = ({ token }) => {
             value={form.url}
             onChange={(e) => setForm({ ...form, url: e.target.value })}
           />
+
+          <label>Gambar (JPG, PNG, WEBP; maksimal 5 MB)</label>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={(e) => setForm({ ...form, gambar: e.target.files[0] || null })}
+          />
+          {isEdit && list.find((item) => item.id === currentId)?.gambar && (
+            <img
+              src={`${BASE_URL}/uploads/${list.find((item) => item.id === currentId).gambar}`}
+              alt="Gambar karya saat ini"
+              style={{ width: '100px', height: '75px', objectFit: 'cover', marginBottom: '12px' }}
+            />
+          )}
 
           <div style={{ textAlign: 'right', marginTop: '10px' }}>
             <Button

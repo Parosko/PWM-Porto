@@ -34,7 +34,8 @@ export const AddPendidikan = async (data) => {
  return await backendApi.post('/pendidikan', data);
 };
 export const UpdatePendidikan = async (data) => {
- return await backendApi.put('/pendidikan', data);
+ data.append('_method', 'PUT');
+ return await backendApi.post('/pendidikan', data);
 };
 export const DeletePendidikan = async (id, token) => {
  return await backendApi.delete('/pendidikan', { data: { id, token } });
@@ -47,7 +48,8 @@ export const AddPengalaman = async (data) => {
  return await backendApi.post('/pengalaman', data);
 };
 export const UpdatePengalaman = async (data) => {
- return await backendApi.put('/pengalaman', data);
+ data.append('_method', 'PUT');
+ return await backendApi.post('/pengalaman', data);
 };
 export const DeletePengalaman = async (id, token) => {
  return await backendApi.delete('/pengalaman', { data: { id, token } });
@@ -86,7 +88,8 @@ export const AddKarya = async (data) => {
  return await backendApi.post('/karya', data);
 };
 export const UpdateKarya = async (data) => {
- return await backendApi.put('/karya', data);
+ data.append('_method', 'PUT');
+ return await backendApi.post('/karya', data);
 };
 export const DeleteKarya = async (id, token) => {
  return await backendApi.delete('/karya', { data: { id, token } });

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GetPengalaman, AddPengalaman, UpdatePengalaman, DeletePengalaman, delay } from '../api/backendApi';
+import { GetPengalaman, AddPengalaman, UpdatePengalaman, DeletePengalaman, BASE_URL, delay } from '../api/backendApi';
 import Modal from './Modal';
 import Button from './Button';
 import Alert from './Alert';
@@ -10,7 +10,7 @@ const Pengalaman = ({ token }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentId, setCurrentId] = useState(null);
-  const [form, setForm] = useState({ nama_perusahaan: '', jabatan: '', tahun_mulai: '', tahun_selesai: '' });
+  const [form, setForm] = useState({ nama_perusahaan: '', jabatan: '', tahun_mulai: '', tahun_selesai: '', gambar: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
@@ -25,7 +25,7 @@ const Pengalaman = ({ token }) => {
         setList(res.data.pengalaman || []);
       }
     } catch (err) {
-      setAlert({ show: true, message: 'Gagal mengambil data pengalaman', type: 'error' });
+      setAlert({ show: true, message: err.response?.data?.message || err.response?.data?.pesan || 'Gagal mengambil data pengalaman', type: 'error' });
     } finally {
       setIsLoadingData(false);
     }
@@ -39,7 +39,7 @@ const Pengalaman = ({ token }) => {
   const handleOpenAdd = () => {
     setIsEdit(false);
     setCurrentId(null);
-    setForm({ nama_perusahaan: '', jabatan: '', tahun_mulai: '', tahun_selesai: '' });
+    setForm({ nama_perusahaan: '', jabatan: '', tahun_mulai: '', tahun_selesai: '', gambar: null });
     setIsOpen(true);
   };
 
@@ -51,7 +51,8 @@ const Pengalaman = ({ token }) => {
       nama_perusahaan: item.nama_perusahaan,
       jabatan: item.jabatan,
       tahun_mulai: item.tahun_mulai,
-      tahun_selesai: item.tahun_selesai
+      tahun_selesai: item.tahun_selesai,
+      gambar: null
     });
     setIsOpen(true);
   };
@@ -61,9 +62,14 @@ const Pengalaman = ({ token }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const payload = { ...form, token };
+      const payload = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        if (key !== 'gambar') payload.append(key, value);
+      });
+      payload.append('token', token);
+      if (form.gambar) payload.append('gambar', form.gambar);
       if (isEdit) {
-        payload.id = currentId;
+        payload.append('id', currentId);
         await UpdatePengalaman(payload);
         setAlert({ show: true, message: 'Pengalaman berhasil diperbarui!', type: 'success' });
       } else {
@@ -73,7 +79,7 @@ const Pengalaman = ({ token }) => {
       setIsOpen(false);
       fetchData();
     } catch (err) {
-      setAlert({ show: true, message: 'Gagal menyimpan pengalaman', type: 'error' });
+      setAlert({ show: true, message: err.response?.data?.message || err.response?.data?.pesan || 'Gagal menyimpan pengalaman', type: 'error' });
     } finally {
       setIsSubmitting(false);
     }
@@ -87,7 +93,7 @@ const Pengalaman = ({ token }) => {
       setAlert({ show: true, message: 'Pengalaman berhasil dihapus!', type: 'success' });
       fetchData();
     } catch (err) {
-      setAlert({ show: true, message: 'Gagal menghapus pengalaman', type: 'error' });
+      setAlert({ show: true, message: err.response?.data?.message || err.response?.data?.pesan || 'Gagal menghapus pengalaman', type: 'error' });
     }
   };
 
@@ -109,6 +115,7 @@ const Pengalaman = ({ token }) => {
               <th>Jabatan</th>
               <th>Tahun Mulai</th>
               <th>Tahun Selesai</th>
+              <th>Gambar</th>
               <th>Aksi</th>
             </tr>
           </thead>
@@ -120,6 +127,15 @@ const Pengalaman = ({ token }) => {
                 <td>{item.jabatan}</td>
                 <td>{item.tahun_mulai}</td>
                 <td>{item.tahun_selesai}</td>
+                <td>
+                  {item.gambar && (
+                    <img
+                      src={`${BASE_URL}/uploads/${item.gambar}`}
+                      alt={`Dokumentasi ${item.nama_perusahaan}`}
+                      style={{ width: '64px', height: '48px', objectFit: 'cover', borderRadius: '4px' }}
+                    />
+                  )}
+                </td>
                 <td>
                   <button className="button" onClick={() => handleOpenEdit(item)}>
                     Edit
@@ -177,6 +193,20 @@ const Pengalaman = ({ token }) => {
             value={form.tahun_selesai}
             onChange={(e) => setForm({ ...form, tahun_selesai: e.target.value })}
           />
+
+          <label>Gambar (JPG, PNG, WEBP; maksimal 5 MB)</label>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={(e) => setForm({ ...form, gambar: e.target.files[0] || null })}
+          />
+          {isEdit && list.find((item) => item.id === currentId)?.gambar && (
+            <img
+              src={`${BASE_URL}/uploads/${list.find((item) => item.id === currentId).gambar}`}
+              alt="Gambar pengalaman saat ini"
+              style={{ width: '100px', height: '75px', objectFit: 'cover', marginBottom: '12px' }}
+            />
+          )}
 
           <div style={{ textAlign: 'right', marginTop: '10px' }}>
             <Button

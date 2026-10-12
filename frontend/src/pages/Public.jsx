@@ -118,11 +118,125 @@ const Public = () => {
         <div>
           <h1 style={{ fontSize: "24px" }}>{profil.nama_lengkap || "Nama Lengkap"}</h1>
           <p style={{ color: "var(--text-secondary)", margin: "6px 0" }}>
+            Username: {profil.username || "-"}
+          </p>
+          <p style={{ color: "var(--text-secondary)", margin: "6px 0" }}>
             📧 {profil.email || "-"}
           </p>
           <p style={{ color: "var(--text-secondary)" }}>
             📱 {profil.nomor_hp || "-"}
           </p>
+        </div>
+      </div>
+
+      {/* Bagian Kontak dan Media Sosial */}
+      <div className="card">
+        <h3>Kontak & Media Sosial</h3>
+        {kontak.length > 0 ? (
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              flexWrap: "wrap",
+              marginTop: "12px"
+            }}
+          >
+            {kontak.map((item, idx) => {
+              let url;
+              try {
+                url = new URL(item.url);
+              } catch {
+                return null;
+              }
+
+              if (url.protocol !== "http:" && url.protocol !== "https:") {
+                return null;
+              }
+
+              return (
+                <a
+                  key={`${item.nama_media}-${idx}`}
+                  href={url.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="button"
+                >
+                  {item.nama_media} ↗
+                </a>
+              );
+            })}
+          </div>
+        ) : (
+          <p style={{ color: "var(--text-secondary)", marginTop: "12px" }}>
+            Belum ada kontak atau media sosial.
+          </p>
+        )}
+      </div>
+
+      {/* Bagian Pendidikan */}
+      <div className="card">
+        <h3>Riwayat Pendidikan</h3>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+            gap: "15px",
+            marginTop: "15px"
+          }}
+        >
+          {pendidikan.map((item, idx) => (
+            <div
+              key={idx}
+              style={{ padding: "15px", border: "1px solid var(--border)", borderRadius: "6px" }}
+            >
+              {item.gambar && (
+                <img
+                  src={`${BASE_URL}/uploads/${item.gambar}`}
+                  alt={`Dokumentasi ${item.nama_institusi}`}
+                  style={{ width: "100%", height: "160px", objectFit: "cover", borderRadius: "4px", marginBottom: "10px" }}
+                />
+              )}
+              <h4>{item.nama_institusi}</h4>
+              <p style={{ color: "var(--text-secondary)", marginTop: "6px" }}>
+                {item.tingkat}{item.jurusan ? ` - ${item.jurusan}` : ""}
+              </p>
+              <p style={{ color: "var(--text-secondary)", fontSize: "13px" }}>
+                {item.tahun_mulai} - {item.tahun_selesai}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Bagian Pengalaman */}
+      <div className="card">
+        <h3>Pengalaman</h3>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+            gap: "15px",
+            marginTop: "15px"
+          }}
+        >
+          {pengalaman.map((item, idx) => (
+            <div
+              key={idx}
+              style={{ padding: "15px", border: "1px solid var(--border)", borderRadius: "6px" }}
+            >
+              {item.gambar && (
+                <img
+                  src={`${BASE_URL}/uploads/${item.gambar}`}
+                  alt={`Dokumentasi ${item.nama_perusahaan}`}
+                  style={{ width: "100%", height: "160px", objectFit: "cover", borderRadius: "4px", marginBottom: "10px" }}
+                />
+              )}
+              <h4>{item.jabatan} - {item.nama_perusahaan}</h4>
+              <p style={{ color: "var(--text-secondary)", fontSize: "13px", marginTop: "6px" }}>
+                {item.tahun_mulai} - {item.tahun_selesai}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -174,6 +288,13 @@ const Public = () => {
                 borderRadius: "6px"
               }}
             >
+              {item.gambar && (
+                <img
+                  src={`${BASE_URL}/uploads/${item.gambar}`}
+                  alt={`Gambar ${item.nama_karya}`}
+                  style={{ width: "100%", height: "180px", objectFit: "cover", borderRadius: "4px", marginBottom: "10px" }}
+                />
+              )}
               <h4>{item.nama_karya}</h4>
               <p
                 style={{

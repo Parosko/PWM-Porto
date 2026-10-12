@@ -34,6 +34,7 @@ $sql = 'CREATE TABLE riwayat_pendidikan (
     jurusan VARCHAR(255) NOT NULL,
     tahun_mulai INT NOT NULL,
     tahun_selesai INT NOT NULL,
+    gambar VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )';
 executeQuery($sql, 'Riwayat Pendidikan Table Created');
@@ -45,6 +46,7 @@ $sql = 'CREATE TABLE pengalaman (
     jabatan VARCHAR(255) NOT NULL,
     tahun_mulai INT NOT NULL,
     tahun_selesai INT NOT NULL,
+    gambar VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )';
 executeQuery($sql, 'Pengalaman Table Created');
@@ -73,6 +75,7 @@ $sql = 'CREATE TABLE karya_terbaik (
     nama_karya VARCHAR(255) NOT NULL,
     deskripsi TEXT NOT NULL,
     url VARCHAR(255) NOT NULL,
+    gambar VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )';
 executeQuery($sql, 'Karya Terbaik Table Created');

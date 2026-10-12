@@ -15,12 +15,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 // Kumpulan query untuk tiap bagian portofolio
 $queries = [
-    'profil' => 'SELECT nama_lengkap, email, nomor_hp, foto FROM users ORDER BY created_at ASC LIMIT 1',
-    'riwayat_pendidikan' => 'SELECT nama_institusi, tingkat, jurusan, tahun_mulai, tahun_selesai FROM riwayat_pendidikan ORDER BY tahun_mulai DESC',
-    'pengalaman' => 'SELECT nama_perusahaan, jabatan, tahun_mulai, tahun_selesai FROM pengalaman ORDER BY tahun_mulai DESC',
+    'profil' => 'SELECT username, nama_lengkap, email, nomor_hp, foto FROM users ORDER BY created_at ASC LIMIT 1',
+    'riwayat_pendidikan' => 'SELECT nama_institusi, tingkat, jurusan, tahun_mulai, tahun_selesai, gambar FROM riwayat_pendidikan ORDER BY tahun_mulai DESC',
+    'pengalaman' => 'SELECT nama_perusahaan, jabatan, tahun_mulai, tahun_selesai, gambar FROM pengalaman ORDER BY tahun_mulai DESC',
     'kontak_aktif' => 'SELECT nama_media, url FROM kontak_aktif ORDER BY created_at ASC',
     'keahlian' => 'SELECT nama_keahlian, level FROM keahlian ORDER BY created_at ASC',
-    'karya_terbaik' => 'SELECT nama_karya, deskripsi, url FROM karya_terbaik ORDER BY created_at DESC',
+    'karya_terbaik' => 'SELECT nama_karya, deskripsi, url, gambar FROM karya_terbaik ORDER BY created_at DESC',
 ];
 
 $response = [
